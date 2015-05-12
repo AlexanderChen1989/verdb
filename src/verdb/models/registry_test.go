@@ -11,7 +11,7 @@ import (
 
 func TestVersionize(t *testing.T) {
 	// 需要测试的新版本数
-	num := 10000
+	num := 100
 
 	// 基础记录
 	baseJSON := `
@@ -108,11 +108,11 @@ func TestVersionize(t *testing.T) {
 	    "compareKey": "pk",
 	    "collectionName": "testver",
 	    "indexKeys": [
-	        ["a"],
-	        ["b.c"],
-	        ["d.e"],
-	        ["d.i"],
-	        ["f.g.h"]
+	        "a",
+	        "b.c",
+	        "d.e",
+	        "d.i",
+	        "f.g.h"
 	    ],
 	    "verKeys": [
 			"a",

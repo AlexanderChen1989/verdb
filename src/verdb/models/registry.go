@@ -42,7 +42,7 @@ Registry 注册模型
 }
 */
 type Registry struct {
-	sync.Mutex
+	sync.Mutex     `json:"-" bson:"-"`
 	DatabaseName   string   `json:"databaseName" bson:"databaseName"`
 	CollectionName string   `json:"collectionName" bson:"collectionName"`
 	Name           string   `json:"name" bson:"name"`

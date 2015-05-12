@@ -23,7 +23,6 @@ type RegManager struct {
 // NewRegManger 返回新生成的RegManager
 func NewRegManger(database, collection string, sess *mgo.Session) *RegManager {
 	coll := sess.DB(database).C(collection)
-	defer sess.Close()
 
 	// 确保注册数据表添加index
 	index := mgo.Index{
@@ -64,7 +63,7 @@ func NewRegManger(database, collection string, sess *mgo.Session) *RegManager {
 // Size 返回注册数目
 func (rm *RegManager) Size() int {
 	rm.RLock()
-	defer rm.Unlock()
+	defer rm.RUnlock()
 
 	return len(rm.registries)
 }
