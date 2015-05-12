@@ -11,7 +11,7 @@ import (
 
 func TestVersionize(t *testing.T) {
 	// 需要测试的新版本数
-	num := 100
+	num := 10000
 
 	// 基础记录
 	baseJSON := `

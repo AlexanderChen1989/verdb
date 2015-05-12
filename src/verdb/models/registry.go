@@ -43,13 +43,13 @@ Registry 注册模型
 */
 type Registry struct {
 	sync.Mutex
-	DatabaseName   string
-	CollectionName string
-	Name           string
-	CompareKey     string
-	VerInterval    int64
-	IndexKeys      []string
-	VerKeys        []string
+	DatabaseName   string   `json:"databaseName" bson:"databaseName"`
+	CollectionName string   `json:"collectionName" bson:"collectionName"`
+	Name           string   `json:"name" bson:"name"`
+	CompareKey     string   `json:"compareKey" bson:"compareKey"`
+	VerInterval    int64    `json:"verInterval" bson:"verInterval"`
+	IndexKeys      []string `json:"indexKeys" bson:"indexKeys"`
+	VerKeys        []string `json:"verKeys" bson:"verKeys"`
 }
 
 // GenVer 基于VerInterval生成版本号: unix seconds / interval
