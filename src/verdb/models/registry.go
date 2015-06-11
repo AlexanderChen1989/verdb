@@ -43,11 +43,11 @@ Registry 注册模型
 */
 type Registry struct {
 	sync.Mutex     `json:"-" bson:"-"`
-	DatabaseName   string   `json:"databaseName" bson:"databaseName"`
-	CollectionName string   `json:"collectionName" bson:"collectionName"`
+	DatabaseName   string   `json:"databaseName" bson:"databaseName" binding:"required"`
+	CollectionName string   `json:"collectionName" bson:"collectionName" binding:"required"`
 	Name           string   `json:"name" bson:"name"`
-	CompareKey     string   `json:"compareKey" bson:"compareKey"`
-	VerInterval    int64    `json:"verInterval" bson:"verInterval"`
+	CompareKey     string   `json:"compareKey" bson:"compareKey" binding:"required"`
+	VerInterval    int64    `json:"verInterval" bson:"verInterval" binding:"required"`
 	IndexKeys      []string `json:"indexKeys" bson:"indexKeys"`
 	VerKeys        []string `json:"verKeys" bson:"verKeys"`
 }

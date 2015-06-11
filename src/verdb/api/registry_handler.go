@@ -1,6 +1,12 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"verdb/models"
+
+	"github.com/gin-gonic/gin"
+	"gopkg.in/mgo.v2/bson"
+)
 
 /*
   - 新建：POST /api/registry
@@ -9,10 +15,19 @@ import "github.com/gin-gonic/gin"
   - 删除：DELETE /api/registry/:registryId
 */
 func NewRegistry(c *gin.Context) {
-	_, err := getDBSession(c.Get("sess"))
+	sess, err := getDBSession(c.Get("sess"))
 	if err != nil {
-		panic(err)
+		jsonError(c, err)
+		return
 	}
+	var reg models.Registry
+	c.Bind(&reg)
+	reg.Name = fmt.Sprintf("%s/%s", reg.DatabaseName, reg.CollectionName)
+	if _, err = sess.DB(MetaDB).C(RegCollection).Upsert(bson.M{"name": reg.Name}, reg); err != nil {
+		jsonError(c, err)
+		return
+	}
+	jsonOk(c, reg)
 }
 
 func SearchRegistry(c *gin.Context) {
