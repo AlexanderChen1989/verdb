@@ -1,9 +1,6 @@
 package api
 
-import (
-	"github.com/gin-gonic/gin"
-	"gopkg.in/mgo.v2"
-)
+import "github.com/gin-gonic/gin"
 
 /*
   - 新建：POST /api/registry
@@ -12,12 +9,10 @@ import (
   - 删除：DELETE /api/registry/:registryId
 */
 func NewRegistry(c *gin.Context) {
-	sess, err := c.Get("sess")
+	_, err := getDBSession(c.Get("sess"))
 	if err != nil {
 		panic(err)
 	}
-	dbsess := sess.(*mgo.Session)
-	dbsess.Close()
 }
 
 func SearchRegistry(c *gin.Context) {
