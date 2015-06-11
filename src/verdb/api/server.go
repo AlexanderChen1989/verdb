@@ -12,7 +12,7 @@ type Server struct {
 
 func NewServer(r *gin.Engine, sess *mgo.Session) *Server {
 	server := &Server{r, sess}
-	setupApi(server)
 	setupMiddleware(server)
+	setupApi(server)
 	return server
 }
