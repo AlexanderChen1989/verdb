@@ -9,4 +9,7 @@ func setupMiddleware(svr *Server) {
 		defer sess.Close()
 		c.Next()
 	})
+	svr.Use(func(c *gin.Context) {
+		c.Set("rm", svr.rm)
+	})
 }

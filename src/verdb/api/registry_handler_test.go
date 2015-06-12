@@ -17,7 +17,10 @@ import (
 func TestNewRegistry(t *testing.T) {
 	// init server
 	r := gin.Default()
-	sess, _ := mgo.Dial("localhost")
+	sess, err := mgo.Dial("localhost")
+	if err != nil {
+		t.Errorf("Error to connect to mongo %s\n", err)
+	}
 	sess.DB(MetaDB).C(RegCollection).DropCollection()
 
 	server := NewServer(r, sess)
@@ -41,7 +44,7 @@ func TestNewRegistry(t *testing.T) {
 	}
 	`
 	var reg models.Registry
-	err := json.Unmarshal([]byte(regJSON), &reg)
+	err = json.Unmarshal([]byte(regJSON), &reg)
 	if err != nil {
 		t.Errorf("Error %s", err)
 		return
@@ -53,19 +56,21 @@ func TestNewRegistry(t *testing.T) {
 		nreg.CollectionName = fmt.Sprintf("%s[%d]", reg.CollectionName, i)
 
 		buf, _ := json.Marshal(&nreg)
+
 		response := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", "/api/registry", bytes.NewBuffer(buf))
 		req.Header.Set("Content-Type", "application/json")
 		server.ServeHTTP(response, req)
-
 		if response.Code != http.StatusOK {
 			t.Errorf("Status Code: %v\n%s\n", response.Code, string(response.Body.Bytes()))
 			return
 		}
+
 	}
 	n, _ := sess.DB(MetaDB).C(RegCollection).Count()
 	if n != num {
 		t.Errorf("lost registries, expected: %d, got: %d\n", num, n)
 		return
 	}
+
 }

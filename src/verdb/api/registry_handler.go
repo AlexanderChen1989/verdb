@@ -1,11 +1,9 @@
 package api
 
 import (
-	"fmt"
 	"verdb/models"
 
 	"github.com/gin-gonic/gin"
-	"gopkg.in/mgo.v2/bson"
 )
 
 /*
@@ -20,10 +18,14 @@ func NewRegistry(c *gin.Context) {
 		jsonError(c, err)
 		return
 	}
+	rm, err := getRegManager(c.Get("rm"))
+	if err != nil {
+		jsonError(c, err)
+		return
+	}
 	var reg models.Registry
 	c.Bind(&reg)
-	reg.Name = fmt.Sprintf("%s/%s", reg.DatabaseName, reg.CollectionName)
-	if _, err = sess.DB(MetaDB).C(RegCollection).Upsert(bson.M{"name": reg.Name}, reg); err != nil {
+	if err = rm.Register(&reg, sess); err != nil {
 		jsonError(c, err)
 		return
 	}
