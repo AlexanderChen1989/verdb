@@ -46,7 +46,7 @@ func TestRegManger(t *testing.T) {
 	json.Unmarshal([]byte(regJSON), reg)
 
 	for i := 0; i < 10; i++ {
-		rm.Register(reg, sess)
+		rm.CreateRegistry(reg, sess)
 	}
 
 	count, _ := sess.DB(database).C(collection).Count()
@@ -62,7 +62,7 @@ func TestRegManger(t *testing.T) {
 	const num = 100
 	for i := 0; i < num; i++ {
 		reg.CollectionName = fmt.Sprintf("CollectionName%v", i)
-		rm.Register(reg, sess)
+		rm.CreateRegistry(reg, sess)
 	}
 
 	var regs []Registry

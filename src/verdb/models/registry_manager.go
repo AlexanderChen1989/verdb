@@ -68,7 +68,7 @@ func (rm *RegManager) Size() int {
 }
 
 // Register 注册一条注册信息
-func (rm *RegManager) CreateRegister(reg *Registry, sess *mgo.Session) error {
+func (rm *RegManager) CreateRegistry(reg *Registry, sess *mgo.Session) error {
 	rm.Lock()
 	defer rm.Unlock()
 
@@ -83,6 +83,41 @@ func (rm *RegManager) CreateRegister(reg *Registry, sess *mgo.Session) error {
 
 	// 保存注册信息到数据库
 	err := sess.DB(rm.database).C(rm.collection).Insert(reg)
+	if err != nil {
+		return err
+	}
+
+	// 缓存注册信息到缓存
+	rm.registries[reg.Name] = reg
+
+	// 添加index
+	regRepo := sess.DB(reg.DatabaseName).C(reg.CollectionName)
+	for _, index := range append(reg.IndexKeys,
+		reg.CompareKey,
+		"_ver",
+		"_next",
+		"_is_latest",
+	) {
+		if err = regRepo.EnsureIndexKey(index); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Register 注册一条注册信息
+func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session) error {
+	rm.Lock()
+	defer rm.Unlock()
+
+	n, err := sess.DB(rm.database).C(rm.collection).FindId(id).Count()
+	if err != nil || n != 1 {
+		return errors.New("Cant find registry with id " + id)
+	}
+
+	// 保存注册信息到数据库
+	_, err = sess.DB(rm.database).C(rm.collection).UpsertId(id, reg)
 	if err != nil {
 		return err
 	}
