@@ -52,7 +52,8 @@ func TestNewRegistry(t *testing.T) {
 		return
 	}
 
-	const num = 10
+	// 测试新建api
+	const num = 100
 	for i := 0; i < num; i++ {
 		nreg := reg
 		nreg.CollectionName = fmt.Sprintf("%s[%d]", reg.CollectionName, i)
@@ -96,6 +97,11 @@ func TestNewRegistry(t *testing.T) {
 		Msg models.Registry
 	}
 
+	// 测试修改api
+
+	// 测试查询api
+
+	// 测试删除api
 	for i := range regs {
 		response := httptest.NewRecorder()
 		req, _ := http.NewRequest("DELETE", "/api/registry/"+regs[i].Id.Hex(), nil)
