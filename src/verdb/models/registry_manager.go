@@ -69,7 +69,7 @@ func (rm *RegManager) Size() int {
 	return len(rm.registries)
 }
 
-// Register 注册一条注册信息
+// CreateRegistry 注册一条注册信息
 func (rm *RegManager) CreateRegistry(reg *Registry, sess *mgo.Session) (*Registry, error) {
 	rm.Lock()
 	defer rm.Unlock()
@@ -109,7 +109,7 @@ func (rm *RegManager) CreateRegistry(reg *Registry, sess *mgo.Session) (*Registr
 	return reg, nil
 }
 
-// Register 注册一条注册信息
+// UpdateRegistry 更新一条注册信息
 func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session) (*Registry, error) {
 	rm.Lock()
 	defer rm.Unlock()
@@ -153,7 +153,7 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 	return reg, nil
 }
 
-// Register 注册一条注册信息
+// DeleteRegistry 删除一条注册信息
 func (rm *RegManager) DeleteRegistry(id string, sess *mgo.Session) (*Registry, error) {
 	rm.Lock()
 	defer rm.Unlock()
@@ -173,6 +173,24 @@ func (rm *RegManager) DeleteRegistry(id string, sess *mgo.Session) (*Registry, e
 
 	delete(rm.registries, key)
 	return &reg, nil
+}
+
+// SearchRegistries 查询注册信息
+func (rm *RegManager) SearchRegistries(obj *SearchStruct, sess *mgo.Session) (regs []Registry, err error) {
+	query := sess.DB(rm.database).C(rm.collection).Find(obj.Query)
+
+	if obj.Selection != nil {
+		query = query.Select(obj.Selection)
+	}
+	if obj.Sort != nil {
+		query = query.Sort(obj.Sort...)
+	}
+	if obj.Limit > 0 {
+		query = query.Limit(obj.Limit)
+	}
+	err = query.All(&regs)
+
+	return
 }
 
 // GetReg 查询注册信息

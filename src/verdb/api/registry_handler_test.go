@@ -11,6 +11,7 @@ import (
 	"verdb/models"
 
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/gin-gonic/gin"
 )
@@ -115,6 +116,34 @@ func TestNewRegistry(t *testing.T) {
 	}
 
 	// 测试查询api
+	type ReturnRegistries struct {
+		Msg []models.Registry
+	}
+	var queries = []models.SearchStruct{
+		models.SearchStruct{
+			Query:     bson.M{"collectionName": bson.M{"$regex": "/.*New/"}},
+			Selection: bson.M{"databaseName": 1, "collectionName": 1},
+			Limit:     10,
+			Sort:      []string{"name"},
+		},
+	}
+	for _, query := range queries {
+		var regs []models.Registry
+		sess.DB(MetaDB).C(RegCollection).Find(query.Query).Sort(query.Sort...).Select(query).Limit(query.Limit).All(&regs)
+
+		response := httptest.NewRecorder()
+		body, _ := json.Marshal(query)
+		req, _ := http.NewRequest("POST", "/api/registry/search", bytes.NewBuffer(body))
+		req.Header.Set("Content-Type", "application/json")
+		server.ServeHTTP(response, req)
+		var rreg ReturnRegistries
+		json.NewDecoder(response.Body).Decode(&rreg)
+
+		if !reflect.DeepEqual(rreg.Msg, regs) {
+			t.Errorf("Delete not return right record\n%+v\n%+v\n", rreg.Msg, regs)
+			return
+		}
+	}
 
 	// 测试删除api
 	for i := range regs {
