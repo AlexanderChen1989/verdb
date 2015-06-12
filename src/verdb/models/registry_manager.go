@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // RegManager 注册信息管理者
@@ -69,7 +68,7 @@ func (rm *RegManager) Size() int {
 }
 
 // Register 注册一条注册信息
-func (rm *RegManager) Register(reg *Registry, sess *mgo.Session) error {
+func (rm *RegManager) CreateRegister(reg *Registry, sess *mgo.Session) error {
 	rm.Lock()
 	defer rm.Unlock()
 
@@ -83,10 +82,11 @@ func (rm *RegManager) Register(reg *Registry, sess *mgo.Session) error {
 	reg.Name = fmt.Sprintf("%s/%s", reg.DatabaseName, reg.CollectionName)
 
 	// 保存注册信息到数据库
-	_, err := sess.DB(rm.database).C(rm.collection).Upsert(bson.M{"name": reg.Name}, reg)
+	err := sess.DB(rm.database).C(rm.collection).Insert(reg)
 	if err != nil {
 		return err
 	}
+
 	// 缓存注册信息到缓存
 	rm.registries[reg.Name] = reg
 

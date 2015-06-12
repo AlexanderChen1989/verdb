@@ -25,7 +25,7 @@ func NewRegistry(c *gin.Context) {
 	}
 	var reg models.Registry
 	c.Bind(&reg)
-	if err = rm.Register(&reg, sess); err != nil {
+	if err = rm.CreateRegister(&reg, sess); err != nil {
 		jsonError(c, err)
 		return
 	}

@@ -66,6 +66,17 @@ func TestNewRegistry(t *testing.T) {
 			return
 		}
 
+		if i != 0 && i%2 == 0 {
+			response := httptest.NewRecorder()
+			req, _ := http.NewRequest("POST", "/api/registry", bytes.NewBuffer(buf))
+			req.Header.Set("Content-Type", "application/json")
+			server.ServeHTTP(response, req)
+			if response.Code != http.StatusInternalServerError {
+				t.Errorf("Allow create same registry %v\n", response.Code)
+				return
+			}
+		}
+
 	}
 	n, _ := sess.DB(MetaDB).C(RegCollection).Count()
 	if n != num {
