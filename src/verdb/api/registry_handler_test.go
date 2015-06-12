@@ -28,7 +28,7 @@ func TestNewRegistry(t *testing.T) {
 		"databaseName": "frradar", 
 		"collectionName": "serverInfo", 
 		"compareKey": "serverId", 
-		'verInterval': 86400, 
+		"verInterval": 86400, 
 		"indexKeys": [ 
 			"a.b",
 			"a.c.d"
@@ -41,7 +41,11 @@ func TestNewRegistry(t *testing.T) {
 	}
 	`
 	var reg models.Registry
-	json.Unmarshal([]byte(regJSON), &reg)
+	err := json.Unmarshal([]byte(regJSON), &reg)
+	if err != nil {
+		t.Errorf("Error %s", err)
+		return
+	}
 
 	const num = 10
 	for i := 0; i < num; i++ {
