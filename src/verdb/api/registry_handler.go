@@ -25,11 +25,12 @@ func NewRegistry(c *gin.Context) {
 	}
 	var reg models.Registry
 	c.Bind(&reg)
-	if err = rm.CreateRegistry(&reg, sess); err != nil {
+	var nreg *models.Registry
+	if nreg, err = rm.CreateRegistry(&reg, sess); err != nil {
 		jsonError(c, err)
 		return
 	}
-	jsonOk(c, reg)
+	jsonOk(c, *nreg)
 }
 
 func UpdateRegistry(c *gin.Context) {
@@ -45,11 +46,12 @@ func UpdateRegistry(c *gin.Context) {
 	}
 	var reg models.Registry
 	c.Bind(&reg)
-	if err = rm.UpdateRegistry(c.Params.ByName("id"), &reg, sess); err != nil {
+	var nreg *models.Registry
+	if nreg, err = rm.UpdateRegistry(c.Params.ByName("id"), &reg, sess); err != nil {
 		jsonError(c, err)
 		return
 	}
-	jsonOk(c, reg)
+	jsonOk(c, *nreg)
 }
 
 func SearchRegistry(c *gin.Context) {
