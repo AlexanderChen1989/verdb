@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 	"verdb/models"
 
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/gin-gonic/gin"
 )
@@ -78,10 +80,35 @@ func TestNewRegistry(t *testing.T) {
 		}
 
 	}
-	n, _ := sess.DB(MetaDB).C(RegCollection).Count()
-	if n != num {
-		t.Errorf("lost registries, expected: %d, got: %d\n", num, n)
+
+	type RegistryWithId struct {
+		models.Registry `bson:",inline"`
+		Id              bson.ObjectId `bson:"_id"`
+	}
+	var regs []RegistryWithId
+	err = sess.DB(MetaDB).C(RegCollection).Find(nil).All(&regs)
+	if err != nil || len(regs) != num {
+		t.Errorf("lost registries, expected: %d, got: %d\n", num, len(regs))
 		return
 	}
 
+	type ReturnRegistry struct {
+		Msg models.Registry
+	}
+
+	for i := range regs {
+		response := httptest.NewRecorder()
+		req, _ := http.NewRequest("DELETE", "/api/registry/"+regs[i].Id.Hex(), nil)
+		server.ServeHTTP(response, req)
+		if response.Code != http.StatusOK {
+			t.Errorf("Status Code: %v\n%s\n", response.Code, string(response.Body.Bytes()))
+			return
+		}
+		var rreg ReturnRegistry
+		json.NewDecoder(response.Body).Decode(&rreg)
+		if !reflect.DeepEqual(rreg.Msg, regs[i].Registry) {
+			t.Errorf("Delete not return right record\n%+v\n%+v\n", rreg.Msg, regs[i].Registry)
+			return
+		}
+	}
 }

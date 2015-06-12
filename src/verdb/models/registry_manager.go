@@ -152,7 +152,7 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 }
 
 // Register 注册一条注册信息
-func (rm *RegManager) DeleteRegistry(id string, sess *mgo.Session) error {
+func (rm *RegManager) DeleteRegistry(id string, sess *mgo.Session) (*Registry, error) {
 	rm.Lock()
 	defer rm.Unlock()
 
@@ -162,15 +162,15 @@ func (rm *RegManager) DeleteRegistry(id string, sess *mgo.Session) error {
 	err := sess.DB(rm.database).C(rm.collection).FindId(_id).One(&reg)
 	if err != nil {
 		log.Println("DeleteRegistry: ", err)
-		return nil
+		return nil, nil
 	}
 	if err = sess.DB(rm.database).C(rm.collection).RemoveId(_id); err != nil {
-		return err
+		return nil, err
 	}
 	key := reg.GenName()
 
 	delete(rm.registries, key)
-	return nil
+	return &reg, nil
 }
 
 // GetReg 查询注册信息

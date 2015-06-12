@@ -57,5 +57,21 @@ func SearchRegistry(c *gin.Context) {
 }
 
 func DeleteRegistry(c *gin.Context) {
+	sess, err := getDBSession(c.Get("sess"))
+	if err != nil {
+		jsonError(c, err)
+		return
+	}
+	rm, err := getRegManager(c.Get("rm"))
+	if err != nil {
+		jsonError(c, err)
+		return
+	}
+	var reg *models.Registry
 
+	if reg, err = rm.DeleteRegistry(c.Params.ByName("id"), sess); err != nil {
+		jsonError(c, err)
+		return
+	}
+	jsonOk(c, *reg)
 }
