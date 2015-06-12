@@ -45,7 +45,7 @@ type Registry struct {
 	sync.Mutex     `json:"-" bson:"-"`
 	DatabaseName   string   `json:"databaseName" bson:"databaseName" binding:"required"`
 	CollectionName string   `json:"collectionName" bson:"collectionName" binding:"required"`
-	Name           string   `json:"name" bson:"name"`
+	Name           string   `json:"-" bson:"name"`
 	CompareKey     string   `json:"compareKey" bson:"compareKey" binding:"required"`
 	VerInterval    int64    `json:"verInterval" bson:"verInterval" binding:"required"`
 	IndexKeys      []string `json:"indexKeys" bson:"indexKeys"`
