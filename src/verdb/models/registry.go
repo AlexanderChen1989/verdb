@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"sync"
@@ -58,6 +59,11 @@ func (reg *Registry) GenVer() int64 {
 		return time.Now().UnixNano()
 	}
 	return int64(time.Now().Second()) / reg.VerInterval
+}
+
+// GenName 基于DatabaseName, CollectionName生成name
+func (reg *Registry) GenName() string {
+	return fmt.Sprintf("%s/%s", reg.DatabaseName, reg.CollectionName)
 }
 
 /*

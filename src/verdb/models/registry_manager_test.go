@@ -132,4 +132,17 @@ func TestRegManger(t *testing.T) {
 			return
 		}
 	}
+
+	nregs = nregs[:0]
+	sess.DB(database).C(collection).Find(nil).All(&nregs)
+
+	for i := range nregs {
+		rm.DeleteRegistry(nregs[i].Id.Hex(), sess)
+	}
+
+	n, err := sess.DB(database).C(collection).Count()
+	if err != nil || n != 0 || rm.Size() != 0 {
+		t.Errorf("Error delete registry\n %v %v %v", n, err, rm.Size())
+		return
+	}
 }

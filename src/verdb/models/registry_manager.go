@@ -81,7 +81,7 @@ func (rm *RegManager) CreateRegistry(reg *Registry, sess *mgo.Session) error {
 		return errors.New("ver_keys cant be empty")
 	}
 
-	reg.Name = fmt.Sprintf("%s/%s", reg.DatabaseName, reg.CollectionName)
+	reg.Name = reg.GenName()
 
 	// 保存注册信息到数据库
 	err := sess.DB(rm.database).C(rm.collection).Insert(reg)
@@ -115,8 +115,9 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 
 	_id := bson.ObjectIdHex(id)
 
-	n, err := sess.DB(rm.database).C(rm.collection).FindId(_id).Count()
-	if err != nil || n != 1 {
+	var oldReg Registry
+	err := sess.DB(rm.database).C(rm.collection).FindId(_id).One(&oldReg)
+	if err != nil {
 		return errors.New("Cant find registry with id " + id)
 	}
 
@@ -128,8 +129,11 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 		return err
 	}
 
-	// 缓存注册信息到缓存
+	// 缓存更新后的注册信息到缓存
 	rm.registries[reg.Name] = reg
+
+	// 删除老注册信息
+	delete(rm.registries, oldReg.Name)
 
 	// 添加index
 	regRepo := sess.DB(reg.DatabaseName).C(reg.CollectionName)
@@ -144,6 +148,28 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 		}
 	}
 
+	return nil
+}
+
+// Register 注册一条注册信息
+func (rm *RegManager) DeleteRegistry(id string, sess *mgo.Session) error {
+	rm.Lock()
+	defer rm.Unlock()
+
+	_id := bson.ObjectIdHex(id)
+
+	var reg Registry
+	err := sess.DB(rm.database).C(rm.collection).FindId(_id).One(&reg)
+	if err != nil {
+		log.Println("DeleteRegistry: ", err)
+		return nil
+	}
+	if err = sess.DB(rm.database).C(rm.collection).RemoveId(_id); err != nil {
+		return err
+	}
+	key := reg.GenName()
+
+	delete(rm.registries, key)
 	return nil
 }
 
