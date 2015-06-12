@@ -3,9 +3,11 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestRegManger(t *testing.T) {
@@ -70,6 +72,33 @@ func TestRegManger(t *testing.T) {
 	if len(regs) != rm.Size() || len(regs) != num {
 		t.Errorf("数据库注册信息数目和缓存数目不一致 %v != %v != %v\n", len(regs), rm.Size(), num)
 		return
+	}
+
+	type RegistryWithId struct {
+		Registry `bson:",inline"`
+		Id       bson.ObjectId `bson:"_id"`
+	}
+
+	var nregs []RegistryWithId
+	sess.DB(database).C(collection).Find(nil).All(&nregs)
+	for i, _ := range nregs {
+		nregs[i].CollectionName = nregs[i].CollectionName + "New"
+		err := rm.UpdateRegistry(nregs[i].Id.Hex(), &(nregs[i].Registry), sess)
+		if err != nil {
+			t.Errorf("Error update, %s", err)
+			return
+		}
+
+		var reg Registry
+		sess.DB(database).C(collection).FindId(nregs[i].Id).One(&reg)
+		if !reflect.DeepEqual(reg, nregs[i].Registry) {
+			t.Errorf("Error update registry in db\n %+v \n %+v\n", reg, nregs[i].Registry)
+			return
+		}
+		if !reflect.DeepEqual(reg, *rm.GetReg(nregs[i].DatabaseName, nregs[i].CollectionName)) {
+			t.Errorf("Error update RegManager\n %+v \n %+v\n", reg, *rm.GetReg(nregs[i].DatabaseName, nregs[i].CollectionName))
+			return
+		}
 	}
 
 	// 测试为注册的表添加index

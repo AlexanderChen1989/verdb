@@ -6,6 +6,8 @@ import (
 	"log"
 	"sync"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"gopkg.in/mgo.v2"
 )
 
@@ -111,13 +113,17 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 	rm.Lock()
 	defer rm.Unlock()
 
-	n, err := sess.DB(rm.database).C(rm.collection).FindId(id).Count()
+	_id := bson.ObjectIdHex(id)
+
+	n, err := sess.DB(rm.database).C(rm.collection).FindId(_id).Count()
 	if err != nil || n != 1 {
 		return errors.New("Cant find registry with id " + id)
 	}
 
+	reg.Name = fmt.Sprintf("%s/%s", reg.DatabaseName, reg.CollectionName)
+
 	// 保存注册信息到数据库
-	_, err = sess.DB(rm.database).C(rm.collection).UpsertId(id, reg)
+	_, err = sess.DB(rm.database).C(rm.collection).UpsertId(_id, reg)
 	if err != nil {
 		return err
 	}
