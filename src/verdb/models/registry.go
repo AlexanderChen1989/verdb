@@ -44,13 +44,14 @@ Registry 注册模型
 */
 type Registry struct {
 	sync.Mutex     `json:"-" bson:"-"`
-	DatabaseName   string   `json:"databaseName" bson:"databaseName" binding:"required"`
-	CollectionName string   `json:"collectionName" bson:"collectionName" binding:"required"`
-	Name           string   `json:"name" bson:"name"`
-	CompareKey     string   `json:"compareKey" bson:"compareKey" binding:"required"`
-	VerInterval    int64    `json:"verInterval" bson:"verInterval" binding:"required"`
-	IndexKeys      []string `json:"indexKeys" bson:"indexKeys"`
-	VerKeys        []string `json:"verKeys" bson:"verKeys"`
+	ID             bson.ObjectId `json:"id" bson:"_id"`
+	DatabaseName   string        `json:"databaseName" bson:"databaseName" binding:"required"`
+	CollectionName string        `json:"collectionName" bson:"collectionName" binding:"required"`
+	Name           string        `json:"name" bson:"name"`
+	CompareKey     string        `json:"compareKey" bson:"compareKey" binding:"required"`
+	VerInterval    int64         `json:"verInterval" bson:"verInterval" binding:"required"`
+	IndexKeys      []string      `json:"indexKeys" bson:"indexKeys"`
+	VerKeys        []string      `json:"verKeys" bson:"verKeys"`
 }
 
 // GenVer 基于VerInterval生成版本号: unix seconds / interval

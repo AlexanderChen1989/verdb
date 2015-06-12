@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func TestRegManger(t *testing.T) {
@@ -64,7 +63,11 @@ func TestRegManger(t *testing.T) {
 	const num = 100
 	for i := 0; i < num; i++ {
 		reg.CollectionName = fmt.Sprintf("CollectionName%v", i)
-		rm.CreateRegistry(reg, sess)
+		_, err := rm.CreateRegistry(reg, sess)
+		if err != nil {
+			t.Errorf("Error create registry %s\n", err)
+			return
+		}
 	}
 
 	var regs []Registry
@@ -74,29 +77,22 @@ func TestRegManger(t *testing.T) {
 		return
 	}
 
-	type RegistryWithId struct {
-		Registry `bson:",inline"`
-		Id       bson.ObjectId `bson:"_id"`
-	}
-
-	var nregs []RegistryWithId
-	sess.DB(database).C(collection).Find(nil).All(&nregs)
-	for i, _ := range nregs {
-		nregs[i].CollectionName = nregs[i].CollectionName + "New"
-		err := rm.UpdateRegistry(nregs[i].Id.Hex(), &(nregs[i].Registry), sess)
+	for i, _ := range regs {
+		regs[i].CollectionName = regs[i].CollectionName + "New"
+		_, err := rm.UpdateRegistry(regs[i].ID.Hex(), &(regs[i]), sess)
 		if err != nil {
 			t.Errorf("Error update, %s", err)
 			return
 		}
 
 		var reg Registry
-		sess.DB(database).C(collection).FindId(nregs[i].Id).One(&reg)
-		if !reflect.DeepEqual(reg, nregs[i].Registry) {
-			t.Errorf("Error update registry in db\n %+v \n %+v\n", reg, nregs[i].Registry)
+		sess.DB(database).C(collection).FindId(regs[i].ID).One(&reg)
+		if !reflect.DeepEqual(reg, regs[i]) {
+			t.Errorf("Error update registry in db\n %+v \n %+v\n", reg, regs[i])
 			return
 		}
-		if !reflect.DeepEqual(reg, *rm.GetReg(nregs[i].DatabaseName, nregs[i].CollectionName)) {
-			t.Errorf("Error update RegManager\n %+v \n %+v\n", reg, *rm.GetReg(nregs[i].DatabaseName, nregs[i].CollectionName))
+		if !reflect.DeepEqual(reg, *rm.GetReg(regs[i].DatabaseName, regs[i].CollectionName)) {
+			t.Errorf("Error update RegManager\n %+v \n %+v\n", reg, *rm.GetReg(regs[i].DatabaseName, regs[i].CollectionName))
 			return
 		}
 	}
@@ -133,11 +129,15 @@ func TestRegManger(t *testing.T) {
 		}
 	}
 
-	nregs = nregs[:0]
-	sess.DB(database).C(collection).Find(nil).All(&nregs)
+	regs = regs[:0]
+	sess.DB(database).C(collection).Find(nil).All(&regs)
 
-	for i := range nregs {
-		rm.DeleteRegistry(nregs[i].Id.Hex(), sess)
+	for i := range regs {
+		_, err := rm.DeleteRegistry(regs[i].ID.Hex(), sess)
+		if err != nil {
+			t.Errorf("Error delete registry, %s\n", err)
+			return
+		}
 	}
 
 	n, err := sess.DB(database).C(collection).Count()

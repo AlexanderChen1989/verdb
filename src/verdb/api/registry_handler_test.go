@@ -84,7 +84,7 @@ func TestNewRegistry(t *testing.T) {
 
 	type RegistryWithId struct {
 		models.Registry `bson:",inline"`
-		Id              bson.ObjectId `bson:"_id"`
+		Id              bson.ObjectId `bson:"_id" json:"-"`
 	}
 	var regs []RegistryWithId
 	err = sess.DB(MetaDB).C(RegCollection).Find(nil).All(&regs)
@@ -98,6 +98,16 @@ func TestNewRegistry(t *testing.T) {
 	}
 
 	// 测试修改api
+	for i := range regs {
+		regs[i].CollectionName = regs[i].CollectionName + "New"
+		regs[i].Name = regs[i].GenName()
+
+		response := httptest.NewRecorder()
+		body, _ := json.Marshal(regs[i].Registry)
+		req, _ := http.NewRequest("PUT", "/api/registry/"+regs[i].Id.Hex(), bytes.NewBuffer(body))
+		server.ServeHTTP(response, req)
+
+	}
 
 	// 测试查询api
 

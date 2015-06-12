@@ -70,23 +70,24 @@ func (rm *RegManager) Size() int {
 }
 
 // Register 注册一条注册信息
-func (rm *RegManager) CreateRegistry(reg *Registry, sess *mgo.Session) error {
+func (rm *RegManager) CreateRegistry(reg *Registry, sess *mgo.Session) (*Registry, error) {
 	rm.Lock()
 	defer rm.Unlock()
 
 	if reg.DatabaseName == "" || reg.CollectionName == "" || reg.CompareKey == "" {
-		return errors.New("db_name, db_name, compare_key cant be empty")
+		return nil, errors.New("db_name, db_name, compare_key cant be empty")
 	}
 	if len(reg.VerKeys) == 0 {
-		return errors.New("ver_keys cant be empty")
+		return nil, errors.New("ver_keys cant be empty")
 	}
 
+	reg.ID = bson.NewObjectId()
 	reg.Name = reg.GenName()
 
 	// 保存注册信息到数据库
 	err := sess.DB(rm.database).C(rm.collection).Insert(reg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// 缓存注册信息到缓存
@@ -101,15 +102,15 @@ func (rm *RegManager) CreateRegistry(reg *Registry, sess *mgo.Session) error {
 		"_is_latest",
 	) {
 		if err = regRepo.EnsureIndexKey(index); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return reg, nil
 }
 
 // Register 注册一条注册信息
-func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session) error {
+func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session) (*Registry, error) {
 	rm.Lock()
 	defer rm.Unlock()
 
@@ -118,15 +119,16 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 	var oldReg Registry
 	err := sess.DB(rm.database).C(rm.collection).FindId(_id).One(&oldReg)
 	if err != nil {
-		return errors.New("Cant find registry with id " + id)
+		return nil, errors.New("Cant find registry with id " + id)
 	}
 
+	reg.ID = _id
 	reg.Name = fmt.Sprintf("%s/%s", reg.DatabaseName, reg.CollectionName)
 
 	// 保存注册信息到数据库
 	_, err = sess.DB(rm.database).C(rm.collection).UpsertId(_id, reg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// 缓存更新后的注册信息到缓存
@@ -144,11 +146,11 @@ func (rm *RegManager) UpdateRegistry(id string, reg *Registry, sess *mgo.Session
 		"_is_latest",
 	) {
 		if err = regRepo.EnsureIndexKey(index); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return reg, nil
 }
 
 // Register 注册一条注册信息
