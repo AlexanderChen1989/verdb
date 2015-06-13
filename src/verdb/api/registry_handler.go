@@ -56,6 +56,7 @@ func UpdateRegistry(c *gin.Context) {
 func SearchRegistry(c *gin.Context) {
 	sess := c.MustGet("sess").(*mgo.Session)
 	rm := c.MustGet("rm").(*models.RegManager)
+
 	var obj models.SearchStruct
 	c.Bind(&obj)
 
@@ -74,6 +75,7 @@ func SearchRegistry(c *gin.Context) {
 func DeleteRegistry(c *gin.Context) {
 	sess := c.MustGet("sess").(*mgo.Session)
 	rm := c.MustGet("rm").(*models.RegManager)
+
 	var reg *models.Registry
 	var err error
 
