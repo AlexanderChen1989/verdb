@@ -11,8 +11,8 @@ import (
 func Versionize(c *gin.Context) {
 	sess := c.MustGet("sess").(*mgo.Session)
 	rm := c.MustGet("rm").(*models.RegManager)
-	database := c.MustGet("database").(string)
-	collection := c.MustGet("collection").(string)
+	database := c.Params.ByName("database")
+	collection := c.Params.ByName("collection")
 
 	reg := rm.GetReg(database, collection)
 	if reg == nil {

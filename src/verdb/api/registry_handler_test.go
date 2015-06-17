@@ -16,7 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestNewRegistry(t *testing.T) {
+func TestRegistryAPI(t *testing.T) {
 	// init server
 	r := gin.Default()
 	sess, err := mgo.Dial("localhost")
