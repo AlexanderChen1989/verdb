@@ -1,0 +1,42 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "gopkg.in/mgo.v2",
+			"repository": "https://gopkg.in/mgo.v2",
+			"revision": "3569c88678d88179dcbd68d02ab081cbca3cd4d0",
+			"branch": "v2"
+		},
+		{
+			"importpath": "github.com/gin-gonic/gin",
+			"repository": "https://github.com/gin-gonic/gin",
+			"revision": "1a7ab6e4d5fdc72d6df30ef562102ae6e0d18518",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/bluesuncorp/validator.v5",
+			"repository": "https://gopkg.in/bluesuncorp/validator.v5",
+			"revision": "27a1d3f1583676b710bb06faf4c8927dd941a893",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/manucorporat/sse",
+			"repository": "https://github.com/manucorporat/sse",
+			"revision": "c142f0f1baea5cef7f98a8a6c222f6134368c1f5",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-colorable",
+			"repository": "https://github.com/mattn/go-colorable",
+			"revision": "d67e0b7d1797975196499f79bcc322c08b9f218b",
+			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "34ff4cd5e6de00702100a0ab3bb73de8de5ab35d",
+			"branch": "master",
+			"path": "/context"
+		}
+	]
+}
