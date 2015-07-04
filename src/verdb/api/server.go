@@ -17,6 +17,6 @@ func NewServer(r *gin.Engine, sess *mgo.Session) *Server {
 	rm := models.NewRegManger(MetaDB, RegCollection, sess)
 	server := &Server{r, sess, rm}
 	setupMiddleware(server)
-	setupApi(server)
+	setupAPI(server)
 	return server
 }

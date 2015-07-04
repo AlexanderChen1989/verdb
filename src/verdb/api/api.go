@@ -10,7 +10,7 @@ Registry
 Versionize
 	POST /api/ver
 */
-func setupApi(server *Server) {
+func setupAPI(server *Server) {
 	r := server
 
 	// Registry CRUD
@@ -21,4 +21,8 @@ func setupApi(server *Server) {
 
 	// 版本化存储
 	r.POST("/api/versionize/:database/:collection", Versionize)
+
+	// 结果查询
+	r.POST("/api/search/:database/:collection", SearchInfo)
+
 }
